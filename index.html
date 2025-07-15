@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce API Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .user-profile {
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .nav-menu {
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .nav-item.admin-only {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .logout-btn {
+            margin-top: 2rem;
+            padding: 0 2rem;
+        }
+
+        .logout-btn button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn button:hover {
+            background: #dc2626;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-forms {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .auth-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+        }
+
+        .demo-accounts {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .demo-accounts strong {
+            color: #0f172a;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-accounts code {
+            background: #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', monospace;
+            font-size: 0.875rem;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .products-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .product-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-details {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .quantity-controls button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .quantity-controls input {
+            width: 60px;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+        }
+
+        .cart-container,
+        .orders-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .cart-item,
+        .order-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-section h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .admin-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .pagination button {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .pagination button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .alerts {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .auth-forms {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .search-filters {
+                grid-template-columns: 1fr;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .cart-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 9999px;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .admin-only.hidden {
+            display: none !important;
+        }
+
+        .admin-only:not(.hidden) {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="auth-container" id="authSection">
+            <div class="auth-header">
+                <h1>🛒 E-commerce API Demo</h1>
+                <p>A full-featured e-commerce API with JWT authentication, product management, and cart functionality</p>
+            </div>
+
+            <div class="auth-forms">
+                <div class="auth-card">
+                    <h3>Sign In</h3>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
+                </div>
+
+                <div class="auth-card">
+                    <h3>Create Account</h3>
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="registerUsername">Username</label>
+                            <input type="text" id="registerUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Create Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="demo-accounts">
+                <strong>Demo Accounts:</strong>
+                Admin: username=<code>admin</code>, password=<code>admin123</code><br>
+                Customer: username=<code>customer</code>, password=<code>customer123</code>
+            </div>
+        </div>
+
+        <nav class="sidebar hidden" id="sidebar">
+            <div class="sidebar-header">
+                <h1>🛒 E-Store</h1>
+                <p>Admin Dashboard</p>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <h3 id="username">Admin User</h3>
+                    <span class="user-role" id="userRole">Administrator</span>
+                </div>
+            </div>
+
+            <div class="nav-menu">
+                <button class="nav-item active" onclick="showTab('products')">
+                    📦 Products
+                </button>
+                <button class="nav-item" onclick="showTab('cart')">
+                    🛒 Cart <span class="cart-badge" id="cartCount">0</span>
+                </button>
+                <button class="nav-item" onclick="showTab('orders')">
+                    📋 My Orders
+                </button>
+                <button class="nav-item admin-only hidden" onclick="showTab('admin')" id="adminNavTab">
+                    ⚙️ Admin Panel
+                </button>
+            </div>
+
+            <div class="logout-btn">
+                <button onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
+
+        <main class="main-content hidden" id="mainContent">
+            <div class="content-section active" id="productsTab">
+                <div class="section-header">
+                    <h2>Products</h2>
+                    <p>Browse our collection of products</p>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-filters">
+                        <div class="form-group">
+                            <input type="text" id="searchInput" placeholder="Search products...">
+                        </div>
+                        <div class="form-group">
+                            <select id="categoryFilter">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <button onclick="searchProducts()" class="btn btn-primary">Search</button>
+                        <button onclick="clearFilters()" class="btn btn-outline">Clear</button>
+                    </div>
+                </div>
+
+                <div class="products-container">
+                    <div id="productsGrid" class="product-grid"></div>
+                    <div id="productsPagination" class="pagination"></div>
+                </div>
+            </div>
+
+            <div class="content-section" id="cartTab">
+                <div class="section-header">
+                    <h2>Shopping Cart</h2>
+                    <p>Review your selected items</p>
+                </div>
+
+                <div class="cart-container">
+                    <div id="cartItems"></div>
+                    <div id="cartTotal" class="cart-total"></div>
+                    <button onclick="createOrder()" class="btn btn-success" id="checkoutBtn">Proceed to Checkout</button>
+                </div>
+            </div>
+
+            <div class="content-section" id="ordersTab">
+                <div class="section-header">
+                    <h2>My Orders</h2>
+                    <p>Track your order history</p>
+                </div>
+
+                <div class="orders-container">
+                    <div id="ordersList"></div>
+                </div>
+            </div>
+
+            <div class="content-section admin-only" id="adminTabContent">
+                <div class="section-header">
+                    <h2>Admin Panel</h2>
+                    <p>Manage products and orders</p>
+                </div>
+
+                <div class="admin-section">
+                    <h4>Add New Product</h4>
+                    <form id="addProductForm">
+                        <div class="admin-form">
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productPrice">Price</label>
+                                <input type="number" id="productPrice" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCategory">Category</label>
+                                <input type="text" id="productCategory" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productStock">Stock</label>
+                                <input type="number" id="productStock" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Product</button>
+                    </form>
+                </div>
+
+                <div class="admin-section">
+                    <h4>Manage Products</h4>
+                    <div id="adminProductsList"></div>
+                </div>
+
+                <div class="admin-section">
+                    <h4>All Orders</h4>
+                    <div id="adminOrdersList"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="alerts" id="alerts"></div>
+
+    <script>
+        let currentUser = null;
+        let currentPage = 1;
+        let currentSearch = '';
+        let currentCategory = '';
+
+        async function login(username, password) {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showDashboard();
+                    showAlert('Login successful!', 'success');
+                } else {
+                    showAlert(data.error || 'Login failed', 'danger');
+                }
+            } catch (error) {
+                showAlert('Login failed: ' + error.message, 'danger');
+            }
+        }
+
+        async function register(username, password) {
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showDashboard();
+                    showAlert('Registration successful!', 'success');
+                } else {
+                    showAlert(data.error || 'Registration failed', 'danger');
+                }
+            } catch (error) {
+                showAlert('Registration failed: ' + error.message, 'danger');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            showAlert('Logged out successfully!', 'success');
+        }
+
+        function showDashboard() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            
+            document.getElementById('username').textContent = currentUser.username;
+            document.getElementById('userRole').textContent = currentUser.role;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                if (currentUser.role === 'admin') {
+                    el.classList.remove('hidden');
+                    el.style.display = '';
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            loadProducts();
+            loadCart();
+            loadOrders();
+            loadCategories();
+            
+            if (currentUser.role === 'admin') {
+                loadAdminProducts();
+                loadAdminOrders();
+            }
+        }
+
+        async function apiRequest(url, options = {}) {
+            const token = localStorage.getItem('token');
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            };
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            };
+            const response = await fetch(url, mergedOptions);
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Request failed');
+            }
+            return data;
+        }
+
+        async function loadProducts() {
+            try {
+                const url = `/api/products?page=${currentPage}&limit=6&search=${currentSearch}&category=${currentCategory}`;
+                const data = await fetch(url).then(res => res.json());
+                
+                displayProducts(data.products);
+                displayPagination(data.pagination);
+            } catch (error) {
+                showAlert('Failed to load products: ' + error.message, 'danger');
+            }
+        }
+
+        function displayProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">₹${product.price.toFixed(2)}</div>
+                    <div class="product-details">
+                        Category: ${product.category}<br>
+                        Stock: ${product.stock} items
+                    </div>
+                    <div class="quantity-controls">
+                        <button onclick="changeQuantity(${product.id}, -1)">-</button>
+                        <input type="number" id="qty-${product.id}" value="1" min="1" max="${product.stock}">
+                        <button onclick="changeQuantity(${product.id}, 1)">+</button>
+                    </div>
+                    <button onclick="addToCart(${product.id})" class="btn btn-primary" ${product.stock === 0 ? 'disabled' : ''}>
+                        ${product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        function changeQuantity(productId, delta) {
+            const input = document.getElementById(`qty-${productId}`);
+            const newValue = parseInt(input.value) + delta;
+            const max = parseInt(input.max);
+            
+            if (newValue >= 1 && newValue <= max) {
+                input.value = newValue;
+            }
+        }
+
+        function displayPagination(pagination) {
+            const paginationDiv = document.getElementById('productsPagination');
+            paginationDiv.innerHTML = '';
+            for (let i = 1; i <= pagination.totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === pagination.page ? 'active' : '';
+                button.onclick = () => {
+                    currentPage = i;
+                    loadProducts();
+                };
+                paginationDiv.appendChild(button);
+            }
+        }
+
+        async function searchProducts() {
+            currentSearch = document.getElementById('searchInput').value;
+            currentCategory = document.getElementById('categoryFilter').value;
+            currentPage = 1;
+            loadProducts();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            currentSearch = '';
+            currentCategory = '';
+            currentPage = 1;
+            loadProducts();
+        }
+
+        async function loadCategories() {
+            try {
+                const categories = await fetch('/api/categories').then(res => res.json());
+                const select = document.getElementById('categoryFilter');
+                select.innerHTML = '<option value="">All Categories</option>';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+            }
+        }
+
+        async function addToCart(productId) {
+            try {
+                const quantity = parseInt(document.getElementById(`qty-${productId}`).value);
+                await apiRequest('/api/cart', {
+                    method: 'POST',
+                    body: JSON.stringify({ productId, quantity })
+                });
+                
+                showAlert('Item added to cart!', 'success');
+                loadCart();
+            } catch (error) {
+                showAlert('Failed to add to cart: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadCart() {
+            try {
+                const cartItems = await apiRequest('/api/cart');
+                displayCart(cartItems);
+                updateCartCount(cartItems.length);
+            } catch (error) {
+                console.error('Failed to load cart:', error);
+                displayCart([]);
+                updateCartCount(0);
+            }
+        }
+
+        function displayCart(cartItems) {
+            const cartDiv = document.getElementById('cartItems');
+            const totalDiv = document.getElementById('cartTotal');
+            
+            if (cartItems.length === 0) {
+                cartDiv.innerHTML = '<p>Your cart is empty</p>';
+                totalDiv.innerHTML = '';
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            let total = 0;
+            cartDiv.innerHTML = '';
+            cartItems.forEach(item => {
+                if (item.product) {
+                    const subtotal = item.product.price * item.quantity;
+                    total += subtotal;
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${item.product.name}</strong><br>
+                                ₹${item.product.price.toFixed(2)} x ${item.quantity} = ₹${subtotal.toFixed(2)}
+                            </div>
+                            <div>
+                                <button onclick="updateCartItem(${item.productId}, ${item.quantity - 1})" class="btn btn-secondary">-</button>
+                                <span style="margin: 0 10px;">${item.quantity}</span>
+                                <button onclick="updateCartItem(${item.productId}, ${item.quantity + 1})" class="btn btn-secondary">+</button>
+                                <button onclick="removeFromCart(${item.productId})" class="btn btn-danger">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                    cartDiv.appendChild(cartItem);
+                }
+            });
+            totalDiv.innerHTML = `Total: ₹${total.toFixed(2)}`;
+            document.getElementById('checkoutBtn').disabled = false;
+        }
+
+        function updateCartCount(count) {
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        async function updateCartItem(productId, newQuantity) {
+            try {
+                await apiRequest(`/api/cart/${productId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ quantity: newQuantity })
+                });
+                
+                loadCart();
+                showAlert('Cart updated!', 'success');
+            } catch (error) {
+                showAlert('Failed to update cart: ' + error.message, 'danger');
+            }
+        }
+
+        async function removeFromCart(productId) {
+            try {
+                await apiRequest(`/api/cart/${productId}`, {
+                    method: 'DELETE'
+                });
+                
+                loadCart();
+                showAlert('Item removed from cart!', 'success');
+            } catch (error) {
+                showAlert('Failed to remove item: ' + error.message, 'danger');
+            }
+        }
+
+        async function createOrder() {
+            try {
+                const order = await apiRequest('/api/orders', {
+                    method: 'POST'
+                });
+                
+                showAlert('Order created successfully!', 'success');
+                loadCart();
+                loadOrders();
+                showTab('orders');
+            } catch (error) {
+                showAlert('Failed to create order: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const orders = await apiRequest('/api/orders');
+                displayOrders(orders);
+            } catch (error) {
+                console.error('Failed to load orders:', error);
+                displayOrders([]);
+            }
+        }
+
+        function displayOrders(orders) {
+            const ordersDiv = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersDiv.innerHTML = '<p>No orders found</p>';
+                return;
+            }
+
+            ordersDiv.innerHTML = '';
+            
+            orders.forEach(order => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'order-item';
+                
+                const itemsHtml = order.items.map(item => 
+                    `<div>${item.productName} x ${item.quantity} - ₹${item.subtotal.toFixed(2)}</div>`
+                ).join('');
+                
+                orderDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <strong>Order #${order.id}</strong><br>
+                            <small>Date: ${new Date(order.createdAt).toLocaleDateString()}</small><br>
+                            <small>Status: ${order.status}</small>
+                            <div style="margin-top: 10px;">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>Total: ₹${order.total.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                `;
+                ordersDiv.appendChild(orderDiv);
+            });
+        }
+
+        async function addProduct() {
+            try {
+                const name = document.getElementById('productName').value;
+                const price = document.getElementById('productPrice').value;
+                const category = document.getElementById('productCategory').value;
+                const stock = document.getElementById('productStock').value;
+
+                await apiRequest('/api/products', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, price, category, stock })
+                });
+
+                document.getElementById('addProductForm').reset();
+                showAlert('Product added successfully!', 'success');
+                loadProducts();
+                loadAdminProducts();
+                loadCategories();
+            } catch (error) {
+                showAlert('Failed to add product: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadAdminProducts() {
+            try {
+                const data = await fetch('/api/products?limit=100').then(res => res.json());
+                displayAdminProducts(data.products);
+            } catch (error) {
+                console.error('Failed to load admin products:', error);
+            }
+        }
+
+        function displayAdminProducts(products) {
+            const adminDiv = document.getElementById('adminProductsList');
+            adminDiv.innerHTML = '';
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'cart-item';
+                productDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${product.name}</strong><br>
+                            Price: ₹${product.price.toFixed(2)} | Category: ${product.category} | Stock: ${product.stock}
+                        </div>
+                        <div>
+                            <button onclick="editProduct(${product.id})" class="btn btn-secondary">Edit</button>
+                            <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                `;
+                adminDiv.appendChild(productDiv);
+            });
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+            try {
+                await apiRequest(`/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                showAlert('Product deleted successfully!', 'success');
+                loadProducts();
+                loadAdminProducts();
+            } catch (error) {
+                showAlert('Failed to delete product: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadAdminOrders() {
+            try {
+                const orders = await apiRequest('/api/admin/orders');
+                displayAdminOrders(orders);
+            } catch (error) {
+                console.error('Failed to load admin orders:', error);
+            }
+        }
+
+        function displayAdminOrders(orders) {
+            const ordersDiv = document.getElementById('adminOrdersList');
+            
+            if (orders.length === 0) {
+                ordersDiv.innerHTML = '<p>No orders found</p>';
+                return;
+            }
+
+            ordersDiv.innerHTML = '';
+            
+            orders.forEach(order => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'order-item';
+                
+                const itemsHtml = order.items.map(item => 
+                    `<div>${item.productName} x ${item.quantity} - ₹${item.subtotal.toFixed(2)}</div>`
+                ).join('');
+                
+                orderDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <strong>Order #${order.id}</strong> (User ID: ${order.userId})<br>
+                            <small>Date: ${new Date(order.createdAt).toLocaleDateString()}</small><br>
+                            <small>Status: ${order.status}</small>
+                            <div style="margin-top: 10px;">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>Total: ₹${order.total.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                `;
+                ordersDiv.appendChild(orderDiv);
+            });
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            
+            if (tabName === 'admin') {
+                document.getElementById('adminTabContent').classList.add('active');
+            } else {
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            }
+            
+            if (tabName === 'products') {
+                loadProducts();
+            } else if (tabName === 'cart') {
+                loadCart();
+            } else if (tabName === 'orders') {
+                loadOrders();
+            } else if (tabName === 'admin') {
+                loadAdminProducts();
+                loadAdminOrders();
+            }
+        }
+
+        async function editProduct(productId) {
+            const newName = prompt('Enter new product name:');
+            const newPrice = prompt('Enter new price:');
+            const newCategory = prompt('Enter new category:');
+            const newStock = prompt('Enter new stock:');
+            
+            if (newName && newPrice && newCategory && newStock) {
+                try {
+                    await apiRequest(`/api/products/${productId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ 
+                            name: newName, 
+                            price: parseFloat(newPrice), 
+                            category: newCategory, 
+                            stock: parseInt(newStock) 
+                        })
+                    });
+                    showAlert('Product updated successfully!', 'success');
+                    loadProducts();
+                    loadAdminProducts();
+                } catch (error) {
+                    showAlert('Failed to update product: ' + error.message, 'danger');
+                }
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertsDiv = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alertsDiv.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            login(username, password);
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            register(username, password);
+        });
+
+        document.getElementById('addProductForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            addProduct();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                currentUser = JSON.parse(user);
+                showDashboard();
+            }
+        };
+    </script>
+</body>
+</html>
